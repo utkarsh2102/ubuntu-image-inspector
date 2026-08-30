@@ -1,0 +1,100 @@
+name: Collect and deploy
+
+on:
+  schedule:
+    # Nightly. Published milestones are immutable, so a steady-state run is a
+    # few dozen requests against the cached ledger.
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+    inputs:
+      series:
+        description: 'Comma-separated codenames (blank = default set)'
+        required: false
+        default: ''
+      refresh:
+        description: 'Ignore the collected ledger and re-list every milestone'
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.github/workflows/collect.yml'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: collect
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # The HTTP cache is what keeps us from re-downloading immutable
+      # artifacts and archive indexes on every run.
+      - name: Restore HTTP cache
+        uses: actions/cache@v4
+        with:
+          path: .cache/http
+          key: uii-http-v1-${{ github.run_id }}
+          restore-keys: uii-http-v1-
+
+      - name: Collect
+        if: github.event_name != 'push'
+        working-directory: collector
+        run: |
+          python -m uii collect \
+            --out ../site/data \
+            --cache ../.cache/http \
+            ${{ inputs.series && format('--series {0}', inputs.series) || '' }} \
+            --verbose
+
+      - name: Fail if new filename patterns appeared
+        if: github.event_name != 'push'
+        run: |
+          # Drift in published filenames is expected occasionally; it must be
+          # reviewed, not silently dropped.
+          count=$(python -c "import json;print(json.load(open('site/data/_state/unparsed.json'))['count'])")
+          echo "unparsed artifacts: $count"
+          if [ "$count" != "0" ]; then
+            python -c "import json;[print(' ',u) for u in json.load(open('site/data/_state/unparsed.json'))['urls'][:20]]"
+            exit 1
+          fi
+
+      - name: Commit data if it changed
+        if: github.event_name != 'push'
+        run: |
+          if [ -z "$(git status --porcelain site/data)" ]; then
+            echo "No data changes."
+            exit 0
+          fi
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add site/data
+          git commit -m "data: refresh image collection ($(date -u +%Y-%m-%d))"
+          git push
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+
+  deploy:
+    needs: collect
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
