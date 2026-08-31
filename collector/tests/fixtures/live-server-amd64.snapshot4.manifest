@@ -1,0 +1,43 @@
+adduser	3.152ubuntu1
+amd64-microcode	3.20250311.1ubuntu1
+apparmor	5.0.0~alpha1-0ubuntu4
+apport	2.33.1-0ubuntu2
+apport-core-dump-handler	2.33.1-0ubuntu2
+apport-symptoms	0.25
+appstream	1.0.6-1
+apt	3.1.4ubuntu1
+base-files	14ubuntu1
+base-passwd	3.6.7
+bash	5.2.37-2ubuntu4
+bash-completion	1:2.16.0-7
+bc	1.07.1-4
+bcache-tools	1.0.8-5build1
+bind9-dnsutils	1:9.20.11-1ubuntu1
+bind9-host	1:9.20.11-1ubuntu1
+bind9-libs:amd64	1:9.20.11-1ubuntu1
+binutils	2.45-3ubuntu3
+binutils-common:amd64	2.45-3ubuntu3
+binutils-x86-64-linux-gnu	2.45-3ubuntu3
+bolt	0.9.8-1
+bpfcc-tools	0.31.0+ds-7ubuntu2
+bpftool	7.6.0+6.16.0-16.16
+bpftrace	0.23.2-1ubuntu2
+bsdextrautils	2.41-4ubuntu3
+bsdutils	1:2.41-4ubuntu3
+btrfs-progs	6.14-1
+busybox-initramfs	1:1.37.0-4ubuntu1
+busybox-static	1:1.37.0-4ubuntu1
+ca-certificates	20250419
+casper	25.04.1
+chrony	4.7-1ubuntu1
+cifs-utils	2:7.4-1
+cloud-guest-utils	0.33-1
+cloud-init	25.3~1g890873f5-0ubuntu1
+cloud-init-base	25.3~1g890873f5-0ubuntu1
+cloud-initramfs-copymods	0.49
+cloud-initramfs-dyn-netconf	0.49
+command-not-found	23.04.0
+console-setup	1.237ubuntu1
+snap:core24	stable	1055
+snap:snapd	stable	25202
+snap:subiquity	25.10/stable	6830

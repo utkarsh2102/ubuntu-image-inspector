@@ -1,0 +1,115 @@
+{
+  "added": [
+    {
+      "name": "command-not-found",
+      "version": "23.04.0"
+    },
+    {
+      "name": "console-setup",
+      "version": "1.237ubuntu1"
+    }
+  ],
+  "changed": [
+    {
+      "from": "4.1.1-0ubuntu6",
+      "name": "apparmor",
+      "to": "5.0.0~alpha1-0ubuntu4"
+    },
+    {
+      "from": "2.33.1-0ubuntu1",
+      "name": "apport",
+      "to": "2.33.1-0ubuntu2"
+    },
+    {
+      "from": "2.33.1-0ubuntu1",
+      "name": "apport-core-dump-handler",
+      "to": "2.33.1-0ubuntu2"
+    },
+    {
+      "from": "1.0.5-1build1",
+      "name": "appstream",
+      "to": "1.0.6-1"
+    },
+    {
+      "from": "3.1.3",
+      "name": "apt",
+      "to": "3.1.4ubuntu1"
+    },
+    {
+      "from": "13.7ubuntu1",
+      "name": "base-files",
+      "to": "14ubuntu1"
+    },
+    {
+      "from": "2.44.50.20250707-1ubuntu1",
+      "name": "binutils",
+      "to": "2.45-3ubuntu3"
+    },
+    {
+      "from": "2.44.50.20250707-1ubuntu1",
+      "name": "binutils-common",
+      "to": "2.45-3ubuntu3"
+    },
+    {
+      "from": "2.44.50.20250707-1ubuntu1",
+      "name": "binutils-x86-64-linux-gnu",
+      "to": "2.45-3ubuntu3"
+    },
+    {
+      "from": "7.6.0+6.15.0-4.4",
+      "name": "bpftool",
+      "to": "7.6.0+6.16.0-16.16"
+    },
+    {
+      "from": "0.23.2-1ubuntu1",
+      "name": "bpftrace",
+      "to": "0.23.2-1ubuntu2"
+    },
+    {
+      "from": "25.2~5g009c4cfd-0ubuntu1",
+      "name": "cloud-init",
+      "to": "25.3~1g890873f5-0ubuntu1"
+    },
+    {
+      "from": "25.2~5g009c4cfd-0ubuntu1",
+      "name": "cloud-init-base",
+      "to": "25.3~1g890873f5-0ubuntu1"
+    }
+  ],
+  "counts": {
+    "added": 2,
+    "changed": 13,
+    "removed": 2,
+    "snapAdded": 0,
+    "snapChanged": 2,
+    "snapRemoved": 0
+  },
+  "removed": [
+    {
+      "name": "binutils-gold",
+      "version": "2.44-2"
+    },
+    {
+      "name": "binutils-gold-x86-64-linux-gnu",
+      "version": "2.44-2"
+    }
+  ],
+  "snapAdded": [],
+  "snapChanged": [
+    {
+      "fromChannel": "stable",
+      "fromRev": 24792,
+      "name": "snapd",
+      "toChannel": "stable",
+      "toRev": 25202
+    },
+    {
+      "fromChannel": "25.10/stable",
+      "fromRev": 6802,
+      "name": "subiquity",
+      "toChannel": "25.10/stable",
+      "toRev": 6830
+    }
+  ],
+  "snapRemoved": []
+}
