@@ -1,0 +1,71 @@
+<!doctype html><meta charset="utf-8"><title>Diff parity (browser)</title>
+<!--
+  Browser fallback for site/tests/diff.parity.test.mjs, for machines with no
+  Node. Serve the REPOSITORY ROOT and open /site/tests/parity.browser.html:
+
+      python3 -m http.server 8000     # from the repo root
+      # then http://127.0.0.1:8000/site/tests/parity.browser.html
+
+  CI runs the node version; this exists so the check is runnable locally too.
+--><pre id="out">running…</pre>
+<script type="module">
+import { diffManifests } from '../js/diff/engine.js';
+const log = [];
+const ok = (c, m) => log.push((c ? 'PASS  ' : 'FAIL  ') + m);
+
+function parseManifest(text) {
+  const packages = [], snaps = [];
+  for (const raw of text.split('\n')) {
+    if (!raw.trim()) continue;
+    let f = raw.split('\t'); if (f.length < 2) f = raw.split(/\s+/); if (f.length < 2) continue;
+    const head = f[0].trim();
+    if (head.startsWith('snap:')) {
+      const name = head.slice(5).trim(), channel = f[1].trim(), d = (f[2]||'').replace(/\D/g,'');
+      if (name && d) snaps.push({ name, channel, rev: Number(d) });
+      continue;
+    }
+    const v = f[1].trim(); if (!head || !v) continue;
+    packages.push([head.includes(':') ? head.slice(0, head.indexOf(':')) : head, v]);
+  }
+  return { packages, snaps };
+}
+const FIX = '../../collector/tests/fixtures/';
+const get = async (p) => (await fetch(FIX + p)).text();
+const a = parseManifest(await get('live-server-amd64.snapshot3.manifest'));
+const b = parseManifest(await get('live-server-amd64.snapshot4.manifest'));
+const golden = JSON.parse(await get('diff.golden.json'));
+const got = diffManifests(a, b);
+
+// Key-order-insensitive deep compare: the golden fixture is written with
+// sorted keys, which says nothing about value equality.
+function eq(x, y) {
+  if (x === y) return true;
+  if (Array.isArray(x) && Array.isArray(y))
+    return x.length === y.length && x.every((v, i) => eq(v, y[i]));
+  if (x && y && typeof x === 'object' && typeof y === 'object') {
+    const kx = Object.keys(x).sort(), ky = Object.keys(y).sort();
+    return kx.length === ky.length && kx.every((k, i) => k === ky[i] && eq(x[k], y[k]));
+  }
+  return false;
+}
+ok(eq(got.counts, golden.counts), 'counts match golden: ' + JSON.stringify(got.counts));
+ok(eq(got.added, golden.added), 'added match golden (' + got.added.length + ')');
+ok(eq(got.removed, golden.removed), 'removed match golden (' + got.removed.length + ')');
+ok(eq(got.changed, golden.changed), 'changed match golden (' + got.changed.length + ')');
+ok(eq(got.snapChanged.map(s=>({name:s.name,fromRev:s.fromRev,toRev:s.toRev,fromChannel:s.fromChannel,toChannel:s.toChannel})), golden.snapChanged),
+   'snapChanged match golden (' + got.snapChanged.length + ')');
+
+const d2 = diffManifests({packages:[['keep','1'],['gone','1'],['bump','1']],snaps:[]},
+                         {packages:[['keep','1'],['new','1'],['bump','2']],snaps:[]});
+ok(eq(d2.added.map(p=>p.name),['new']) && eq(d2.removed.map(p=>p.name),['gone']) && eq(d2.changed.map(p=>p.name),['bump']), 'classification exclusive');
+
+const d3 = diffManifests({packages:[],snaps:[{name:'x',channel:'edge',rev:5}]},
+                         {packages:[],snaps:[{name:'x',channel:'stable',rev:5}]});
+ok(d3.counts.snapChanged === 1, 'channel-only move counts as change');
+
+const d4 = diffManifests({packages:[['b','1']],snaps:[]},{packages:[['z','1'],['a','1']],snaps:[]});
+ok(eq(d4.added.map(p=>p.name),['a','z']), 'results sorted');
+
+document.getElementById('out').textContent = log.join('\n') +
+  '\n\n' + (log.every(l=>l.startsWith('PASS')) ? 'ALL PASS' : 'FAILURES PRESENT');
+</script>
