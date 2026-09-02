@@ -129,6 +129,13 @@ function buildControls() {
     render(store.get(), ['theme']);
   });
 
+  try {
+    const saved = localStorage.getItem('uii.theme');
+    if (saved) document.documentElement.dataset.theme = saved;
+  } catch {
+    /* ignore */
+  }
+
   $('llm-settings').addEventListener('click', async () => {
     llm = llm || (await import('./llm/panel.js'));
     llm.renderSettings($('llm-panel'));
