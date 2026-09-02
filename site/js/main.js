@@ -115,8 +115,12 @@ function buildControls() {
 
   $('theme-toggle').addEventListener('click', () => {
     const root = document.documentElement;
-    const now = root.dataset.theme === 'dark' ? 'light' : 'dark';
-    root.dataset.theme = now;
+    // With no attribute set the OS preference is in charge; the first click
+    // flips away from whatever is currently showing.
+    const dark =
+      root.dataset.theme === 'dark' ||
+      (!root.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+    root.dataset.theme = dark ? 'light' : 'dark';
     render(store.get(), ['theme']);
   });
 
