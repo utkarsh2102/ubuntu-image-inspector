@@ -121,6 +121,11 @@ function buildControls() {
       root.dataset.theme === 'dark' ||
       (!root.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
     root.dataset.theme = dark ? 'light' : 'dark';
+    try {
+      localStorage.setItem('uii.theme', root.dataset.theme);
+    } catch {
+      /* storage blocked: the choice simply does not persist */
+    }
     render(store.get(), ['theme']);
   });
 
