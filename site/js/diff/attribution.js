@@ -186,12 +186,23 @@ export function explainWhy(target, detail, pkgmeta, maxDepth = 8) {
     }
   }
 
+  /**
+   * A package terminates the chain when it explains itself: the archive marks
+   * it as a task member, essential, or required/important priority -- or
+   * nothing else in this image depends on it, which means the image seeded it
+   * directly. That last case matters in practice: kernel metapackages such as
+   * linux-image-generic-hwe-24.04 are optional priority with no Task field,
+   * so without it every kernel chain dead-ends.
+   */
   const rootReason = (name) => {
     const e = entryFor(name);
     if (!e) return null;
     if (e.task?.length) return `task: ${e.task.join(', ')}`;
     if (e.ess) return 'marked Essential';
     if (e.pri === 'required' || e.pri === 'important') return `priority: ${e.pri}`;
+    if (!(parents.get(name) || []).length) {
+      return 'seeded directly (nothing else in this image depends on it)';
+    }
     return null;
   };
 
