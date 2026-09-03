@@ -186,10 +186,13 @@ export function explainWhy(target, detail, pkgmeta, maxDepth = 8) {
     }
   }
 
-  const isRoot = (name) => {
+  const rootReason = (name) => {
     const e = entryFor(name);
-    if (!e) return false;
-    return Boolean(e.task?.length) || e.pri === 'required' || e.pri === 'important' || e.ess;
+    if (!e) return null;
+    if (e.task?.length) return `task: ${e.task.join(', ')}`;
+    if (e.ess) return 'marked Essential';
+    if (e.pri === 'required' || e.pri === 'important') return `priority: ${e.pri}`;
+    return null;
   };
 
   // BFS outward from the target to the nearest root.
@@ -203,17 +206,8 @@ export function explainWhy(target, detail, pkgmeta, maxDepth = 8) {
         if (seen.has(parent)) continue;
         seen.add(parent);
         const extended = [...path, parent];
-        if (isRoot(parent)) {
-          const e = entryFor(parent);
-          return {
-            chain: extended.slice().reverse(),
-            rootReason: e.task?.length
-              ? `task: ${e.task.join(', ')}`
-              : e.ess
-                ? 'essential'
-                : `priority: ${e.pri}`,
-          };
-        }
+        const reason = rootReason(parent);
+        if (reason) return { chain: extended.slice().reverse(), rootReason: reason };
         next.push(extended);
       }
     }
@@ -221,12 +215,7 @@ export function explainWhy(target, detail, pkgmeta, maxDepth = 8) {
     frontier = next;
   }
 
-  if (isRoot(target)) {
-    const e = entryFor(target);
-    return {
-      chain: [target],
-      rootReason: e.task?.length ? `task: ${e.task.join(', ')}` : `priority: ${e.pri}`,
-    };
-  }
+  const selfReason = rootReason(target);
+  if (selfReason) return { chain: [target], rootReason: selfReason };
   return null;
 }
