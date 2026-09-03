@@ -206,7 +206,13 @@ export function explainWhy(target, detail, pkgmeta, maxDepth = 8) {
     return null;
   };
 
-  // BFS outward from the target to the nearest root.
+  // If the target explains itself -- Essential, a task member, or seeded
+  // directly -- that is the answer. Walking up to some arbitrary parent that
+  // happens to depend on it would be true but misleading.
+  const selfFirst = rootReason(target);
+  if (selfFirst) return { chain: [target], rootReason: selfFirst };
+
+  // Otherwise walk up the reverse-dependency graph to the nearest root.
   const seen = new Set([target]);
   let frontier = [[target]];
   for (let depth = 0; depth < maxDepth; depth++) {
@@ -226,7 +232,5 @@ export function explainWhy(target, detail, pkgmeta, maxDepth = 8) {
     frontier = next;
   }
 
-  const selfReason = rootReason(target);
-  if (selfReason) return { chain: [target], rootReason: selfReason };
   return null;
 }
