@@ -155,7 +155,7 @@ python3 -m venv .venv && .venv/bin/pip install pytest ruff
 .venv/bin/python -m pytest collector/tests -q   # collector tests
 .venv/bin/ruff check collector/                 # lint
 python3 collector/validate_data.py site/data    # data invariants + regressions
-node --test site/tests/                         # JS/Python diff parity
+node --test site/tests/*.test.mjs               # JS/Python diff parity
 ```
 
 No Node available? Serve the repository root and open

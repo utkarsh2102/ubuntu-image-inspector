@@ -31,7 +31,9 @@ jobs:
         with:
           node-version: '22'
       - name: Diff parity (JS vs Python golden fixture)
-        run: node --test site/tests/
+        # A bare directory arg is treated as a module to load by current Node
+        # (>=22); pass the test files so the runner discovers them reliably.
+        run: node --test site/tests/*.test.mjs
 
   vendor:
     # Vendored assets must match upstream exactly, or the pin is meaningless.
